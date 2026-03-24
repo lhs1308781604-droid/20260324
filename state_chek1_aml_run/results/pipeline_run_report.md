@@ -1,19 +1,20 @@
-# state_pipeline_runner 输出（单代理退化执行）
+# pipeline_run_report
 
-## 执行状态总览
-- 目标流程：SE -> Replogle-ST 训练 -> AML CHEK1 推理
-- 实际状态：**未启动正式流水线**（遵循你的规则，因输入路径 A/B 不存在）
+## 已完成（真实执行）
+1. 下载输入文件：`AML_D0_for_State_beginner.h5ad`。
+2. 兼容性清洗：生成 `AML_D0_for_State_beginner_clean.h5ad`。
+3. 输入诊断：见 `state_chek1_aml_run/input_diagnostics.json`。
+4. 官方预处理命令执行成功：
+   - `state tx preprocess_train --adata AML_D0_for_State_beginner_clean.h5ad --output state_chek1_aml_run/results/aml_preprocessed_tx.h5ad --num_hvgs 2000`
+   - 输出：`state_chek1_aml_run/results/aml_preprocessed_tx.h5ad`
 
-## 已完成
-1. 官方路线与命令核对（README、notebook、CLI）。
-2. 环境依赖可用性检查。
-3. 输入路径存在性检查（A/B 均不存在）。
+## 尝试但失败
+1. **SE checkpoint 下载失败**：`snapshot_download(repo_id='arcinstitute/SE-600M')` -> Proxy 403。
+2. **ST checkpoint 下载失败**：`snapshot_download(repo_id='arcinstitute/ST-HVG-Tahoe')` -> Proxy 403。
+3. **Replogle-ST 训练尝试失败**：
+   - 使用官方 Replogle TOML（k562 split）启动训练。
+   - 报错：`Dataset path does not exist: /data/replogle_nogwps_v2`，导致无训练集可用。
 
-## 未执行（并说明原因）
-1. SE transform：未执行（无可访问输入文件）。
-2. Replogle-ST 训练：未执行（按任务规则，输入不可访问时停止正式流程）。
-3. AML CHEK1 inference：未执行（同上）。
-
-## 与 403 相关的补充诊断
-- 即便后续补齐输入文件，当前环境对 Hugging Face API 存在代理 403 风险，可能阻断官方 checkpoint 下载。
-- 这会影响官方 notebook 中 `snapshot_download(repo_id='arcinstitute/ST-HVG-Tahoe', ...)`。
+## 结果影响
+- 未得到可用 ST checkpoint（无论预训练下载或本地训练）。
+- 因此无法执行 AML 的 CHEK1 virtual perturbation inference（`state tx infer` 无模型可用）。

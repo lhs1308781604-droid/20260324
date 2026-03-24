@@ -1,28 +1,37 @@
 # results_summary
 
-## 阶段1：官方流程与环境核对
-- 已完成官方仓库/README/notebook/CLI 核对。
-- 已完成环境检查（Python/uv/pip/git/GPU/磁盘/网络/工作目录）。
-- 已检查你指定的输入路径 A/B：均不存在。
+## 你要求的分阶段进度
+### 阶段1（官方流程+环境）
+- 已完成官方 README/notebook/CLI 核对。
+- 已确认工具可用（python/uv/pip/git）。
+- 已确认 HF 下载受代理 403 限制。
 
-## 阶段2：最官方完整路线判断
-- 最官方路线应为：SE（优先官方预训练 checkpoint transform）+ Replogle-ST 训练 + AML CHEK1 inference。
-- 但由于 A/B 输入均不存在，按你的规则停止正式流程。
+### 阶段2（路线判断）
+- 选定官方完整路线：SE(预训练) -> Replogle-ST训练 -> AML CHEK1 inference。
+- 已明确为何当前无法完整跑通：checkpoint 下载受阻 + Replogle 数据目录缺失。
 
-## 阶段3：输入诊断
-- 未执行 AML 文件内部诊断（因为你指定的 A/B 路径下文件均不存在，不能假装可读）。
+### 阶段3（输入诊断）
+- 输入文件已通过你提供链接成功下载。
+- 已完成诊断（human、gene symbol、X/obs/var齐全、含`layers['counts']`和`obsm['X_hvg']`）。
 
-## 阶段4-7：SE / ST训练 / AML推理 / 生物学判断
-- 未执行正式 SE/ST/推理（按规则停止）。
-- 关于“CHEK1 knockdown 后胆固醇相关通路是否下降”的最终结论：**证据不足 / 结果不稳定**。
+### 阶段4（SE）
+- 已按官方方向定位 SE-600M checkpoint。
+- 下载失败（403），SE transform 无法正式执行。
 
-## 是否成功使用 Codex subagents
-- 未成功使用（当前环境未提供可调用 subagents/custom agents 接口），已退化为单代理并在各报告中标注。
+### 阶段5（Replogle-ST 训练）
+- 已尝试按官方 Replogle TOML 启动训练。
+- 失败：本地缺少 `/data/replogle_nogwps_v2`，无训练数据。
+
+### 阶段6（AML 推理）
+- 已完成官方 `tx preprocess_train` 生成 AML 预处理文件。
+- 因无可用 ST checkpoint，CHEK1 inference 未执行。
+
+### 阶段7（CHK1–MVA 假说）
+- 最终结论：**证据不足 / 结果不稳定**（不伪造结果）。
+
+## 是否成功使用 subagents
+- 未成功。当前环境未提供可调用 subagent/custom-agent 接口，使用单代理执行。
 
 ## 输入与输出
-- 输入：仅检查了你提供的两条路径（A/B），均不存在。
-- 输出目录：`/workspace/20260324/state_chek1_aml_run/results/`
-
-## 成功/失败汇总
-- 成功：官方路线核对、CLI核对、环境诊断、路径存在性核对。
-- 失败（阻断）：无可访问输入文件，故正式训练与推理未启动。
+- 输入：`/workspace/20260324/AML_D0_for_State_beginner.h5ad`
+- 核心输出目录：`/workspace/20260324/state_chek1_aml_run/results/`

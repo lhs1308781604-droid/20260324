@@ -1,1 +1,3 @@
-No checkpoint generated in this run (formal pipeline not started due missing input file paths A/B).
+No ST checkpoint generated in this run.
+- Pretrained ST checkpoint download blocked by HF proxy 403.
+- Local Replogle training failed due missing dataset path.

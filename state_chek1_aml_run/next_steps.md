@@ -1,21 +1,22 @@
 # next_steps
 
-## 先解决输入文件可访问性（必须）
-你需要任选其一：
-1. 把 `.h5ad` 上传到当前容器可访问路径（例如 `/workspace/20260324/AML_D0_for_State_beginner.h5ad`）；
-2. 提供可直接下载链接（无需登录）；
-3. 把文件放到你在本容器里可访问的绝对路径，并告诉我。
+## 为了完成“正式完整版”还缺什么
+1. 让当前环境可访问 Hugging Face（至少这两个域名）：
+   - `huggingface.co`
+   - `cdn-lfs.huggingface.co`
+2. 或者你离线提供以下目录到本容器：
+   - `SE-600M`（SE checkpoint目录）
+   - `ST-HVG-Tahoe/fewshot/state_generalization_X_hvg`（ST checkpoint目录）
+3. 若坚持“先训练 Replogle-ST”，请提供本地 Replogle 数据目录（与 TOML 中路径一致，或我可帮你重写 TOML 指向新路径）。
 
-## 再解决 Hugging Face 403（checkpoint 下载）
-针对 `snapshot_download(... ST-HVG-Tahoe ...)` 的 403，可按优先顺序：
-1. **网络侧放行**：让当前执行环境允许访问 `https://huggingface.co` 与 `https://cdn-lfs.huggingface.co`。
-2. **设置代理白名单**：在代理/防火墙中放行上述域名。
-3. **改为离线交付 checkpoint**：由你在可联网机器下载后上传到容器，再本地 `--model-dir/--checkpoint` 指向该目录。
-4. **如仓库需要鉴权**：配置 `HF_TOKEN`（`huggingface-cli login` 或环境变量）后重试。
-5. **企业代理场景**：显式配置 `HTTPS_PROXY/HTTP_PROXY/NO_PROXY` 并重试。
+## snapshot_download 403 的可执行修复
+- 网络/代理侧：放行上面两个 HF 域名。
+- 认证侧（若需要）：`huggingface-cli login` 并设置 `HF_TOKEN`。
+- 代理变量（企业网络常见）：配置 `HTTPS_PROXY` / `HTTP_PROXY` / `NO_PROXY`。
+- 离线路线（最稳）：你在可联网机器下载后，把 checkpoint 目录上传到本容器本地路径。
 
-## 当文件与checkpoint都可访问后，我会执行的正式版清单
-1. 官方 SE transform（优先官方预训练 SE checkpoint）。
-2. 官方 Replogle-ST 训练（保存 config/log/checkpoint）。
-3. AML CHEK1 inference（记录模型、checkpoint、embed_key、pert设置）。
-4. 仅围绕 MVA/胆固醇通路与关键基因输出“支持下降 / 不支持下降 / 证据不足”。
+## 文件就绪后我会立即继续
+1. 跑 SE transform。
+2. 跑 Replogle-ST 训练（或你允许时用官方 ST 预训练后备版）。
+3. 跑 AML CHEK1 inference。
+4. 输出通路/关键基因方向并给出三选一结论。

@@ -1,0 +1,29 @@
+{
+  "shape": [
+    11641,
+    27899
+  ],
+  "obs_cols": 37,
+  "var_cols": 8,
+  "has_X": true,
+  "species": [
+    "human"
+  ],
+  "gene_symbol_like": 1.0,
+  "layers": [
+    "counts"
+  ],
+  "obsm": [
+    "X_hvg"
+  ],
+  "raw_present": false,
+  "perturbation_target_unique": [
+    "control"
+  ],
+  "X_min": 0.0,
+  "X_max": 4.912261486053467,
+  "X_mean": 0.06597161293029785,
+  "counts_min": 0.0,
+  "counts_max": 52.0,
+  "counts_mean": 0.060887
+}
