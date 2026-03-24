@@ -1,0 +1,53 @@
+{
+  "shape": [
+    11641,
+    27899
+  ],
+  "has_obs": true,
+  "has_var": true,
+  "has_X": true,
+  "species_unique": [
+    "human"
+  ],
+  "ensembl_prefix_fraction": 0.0,
+  "gene_symbol_examples": [
+    "A1BG",
+    "A1BG-AS1",
+    "A1CF",
+    "A2M",
+    "A2M-AS1",
+    "A2ML1",
+    "A2MP1",
+    "A3GALT2",
+    "A4GALT",
+    "A4GNT"
+  ],
+  "layers": [
+    "counts"
+  ],
+  "obsm": [
+    "X_hvg"
+  ],
+  "raw_present": false,
+  "X_min": 0.0,
+  "X_max": 4.912261486053467,
+  "X_mean": 0.06597161293029785,
+  "counts_min": 0.0,
+  "counts_max": 52.0,
+  "counts_mean": 0.060887,
+  "perturbation_target_unique": [
+    "control"
+  ],
+  "celltype_unique": [
+    "GMP-like",
+    "Prog-like",
+    "ProMono-like",
+    "HSC-like",
+    "cDC-like",
+    "Mono-like"
+  ],
+  "patient_id_nunique": 12,
+  "timepoint_unique": [
+    "D0"
+  ]
+}

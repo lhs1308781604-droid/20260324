@@ -1,0 +1,4 @@
+pathway,status,note
+HALLMARK_CHOLESTEROL_HOMEOSTASIS,not_run,no CHEK1 perturbation prediction matrix available
+mevalonate pathway,not_run,no CHEK1 perturbation prediction matrix available
+cholesterol biosynthesis,not_run,no CHEK1 perturbation prediction matrix available

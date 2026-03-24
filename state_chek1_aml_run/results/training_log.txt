@@ -1,0 +1,3 @@
+Attempted official ST training command with Replogle TOML.
+Failure: Dataset path does not exist: /data/replogle_nogwps_v2
+Consequence: No training datasets available; checkpoint not produced.
