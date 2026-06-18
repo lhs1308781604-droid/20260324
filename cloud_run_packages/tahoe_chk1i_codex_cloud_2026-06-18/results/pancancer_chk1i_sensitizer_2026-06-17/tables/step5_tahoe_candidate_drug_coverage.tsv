@@ -1,0 +1,25 @@
+term	n_sample_rows	sample_drugs	n_drug_metadata_rows	metadata_drugs
+vincristine	3	vincristine	1	vincristine
+mebendazole	3	Mebendazole	1	Mebendazole
+vinorelbine	0		0	
+docetaxel	7	Docetaxel; Docetaxel (Trihydrate)	2	Docetaxel; Docetaxel (Trihydrate)
+podofilox	0		0	
+oxfendazole	0		0	
+fenbendazole	0		0	
+albendazole	0		0	
+oxibendazole	0		0	
+cyt997	0		0	
+abt-751	0		0	
+yk 4-279	0		0	
+piperlongumine	0		0	
+paclitaxel	3	Paclitaxel	1	Paclitaxel
+vinblastine	4	Vinblastine (sulfate)	1	Vinblastine (sulfate)
+baricitinib	0		0	
+filgotinib	3	Filgotinib	1	Filgotinib
+tofacitinib	8	Tofacitinib; Tofacitinib (citrate)	2	Tofacitinib; Tofacitinib (citrate)
+motesanib	0		0	
+pazopanib	0		0	
+tamibarotene	0		0	
+tazarotene	3	Tazarotene	1	Tazarotene
+bortezomib	3	Bortezomib	1	Bortezomib
+ixazomib	6	Ixazomib; Ixazomib citrate	2	Ixazomib; Ixazomib citrate
