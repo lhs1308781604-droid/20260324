@@ -49,7 +49,7 @@ record_environment() {
 }
 
 choose_scratch() {
-  if [ -d "/caas_toolbox" ] && [ -w "/caas_toolbox" ]; then
+  if mkdir -p "/caas_toolbox/tahoe_hf_cache" "/caas_toolbox/tmp" "/caas_toolbox/pip_cache" 2>/dev/null; then
     export HF_HOME="${HF_HOME:-/caas_toolbox/tahoe_hf_cache}"
     export TMPDIR="${TMPDIR:-/caas_toolbox/tmp}"
     export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/caas_toolbox/pip_cache}"
@@ -158,6 +158,11 @@ export RESULT_ROOT="${RESULT_ROOT:-$PROJECT_ROOT/results/pancancer_chk1i_sensiti
 export TAHOE_MAX_FILES="${TAHOE_MAX_FILES:-2}"
 export FOOTER_WORKERS="${FOOTER_WORKERS:-2}"
 
+MAX_FILES_ARGS=()
+if [ "$TAHOE_MAX_FILES" != "ALL" ] && [ -n "$TAHOE_MAX_FILES" ]; then
+  MAX_FILES_ARGS=(--max-files "$TAHOE_MAX_FILES")
+fi
+
 log "Starting cloud diagnostic index-only run."
 record_environment
 
@@ -181,7 +186,7 @@ RUN_CODE=127
 if [ "$PIP_CODE" -eq 0 ] && [ "$IMPORT_CODE" -eq 0 ]; then
   log "Running Tahoe index-only diagnostic with max files: $TAHOE_MAX_FILES."
   python "$RESULT_ROOT/tahoe_state_induction/scripts/run_tahoe_pseudobulk_chk1i_projection.py" \
-    --max-files "$TAHOE_MAX_FILES" \
+    "${MAX_FILES_ARGS[@]}" \
     --footer-workers "$FOOTER_WORKERS" \
     --read-workers 1 \
     --index-only > "$RUN_LOG" 2>&1

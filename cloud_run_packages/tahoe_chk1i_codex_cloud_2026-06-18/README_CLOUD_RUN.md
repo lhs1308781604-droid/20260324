@@ -44,3 +44,10 @@ scan, captures environment, dependency, runtime, and output logs, writes
 `cloud_run_status.md`, creates `tahoe_chk1i_cloud_debug_outputs.tar.gz`, and
 exits 0 so Cloud can return a diagnostic diff even when the Tahoe run itself
 fails.
+
+For a full row-group index-only scan with the same diagnostic safeguards:
+
+```bash
+cd cloud_run_packages/tahoe_chk1i_codex_cloud_2026-06-18
+TAHOE_MAX_FILES=ALL FOOTER_WORKERS=16 bash run_cloud_debug_index_only.sh
+```

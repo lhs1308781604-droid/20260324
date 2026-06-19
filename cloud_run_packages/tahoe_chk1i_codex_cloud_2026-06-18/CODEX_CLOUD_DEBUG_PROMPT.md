@@ -10,6 +10,8 @@ bash run_cloud_debug_index_only.sh
 
 Important:
 - Do not run the full Tahoe scoring in this diagnostic task.
+- For a tiny plumbing test, run the command as written. For the full row-group
+  index-only scan, run `TAHOE_MAX_FILES=ALL FOOTER_WORKERS=16 bash run_cloud_debug_index_only.sh`.
 - The script is designed to exit 0 even if dependency installation or Tahoe access fails, so the task should still commit logs.
 - Commit the generated `cloud_debug_logs/`, `cloud_run_status.md`, and `tahoe_chk1i_cloud_debug_outputs.tar.gz`.
 - In the final response, summarize:
