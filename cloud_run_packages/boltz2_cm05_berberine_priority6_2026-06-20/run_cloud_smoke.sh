@@ -13,6 +13,19 @@ mkdir -p cloud_results/logs cloud_results/status cloud_results/tables cloud_resu
     export TMPDIR="${TMPDIR:-$ROOT_DIR/tmp}"
   fi
   mkdir -p "$BOLTZ_CACHE_DIR" "$TMPDIR"
+  PYTHON_BIN="${PYTHON_BIN:-}"
+  if [ -z "$PYTHON_BIN" ]; then
+    if command -v python3.11 >/dev/null 2>&1; then
+      PYTHON_BIN="$(command -v python3.11)"
+    elif command -v pyenv >/dev/null 2>&1; then
+      pyenv install -s 3.11.15
+      PYTHON_BIN="$(pyenv root)/versions/3.11.15/bin/python"
+    else
+      PYTHON_BIN="$(command -v python3 || command -v python)"
+    fi
+  fi
+  "$PYTHON_BIN" -m venv .venv_boltz2_cloud
+  . .venv_boltz2_cloud/bin/activate
   python -m pip install --upgrade pip
   python -m pip install -r requirements.txt
   export BOLTZ_RUN_MODE=smoke
