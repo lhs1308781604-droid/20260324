@@ -84,6 +84,7 @@ write_status() {
     echo "- TAHOE_INDEX_ONLY: ${TAHOE_INDEX_ONLY:-unset}"
     echo "- TAHOE_MAX_FILES: ${TAHOE_MAX_FILES:-unset}"
     echo "- TAHOE_MAX_READ_FILES: ${TAHOE_MAX_READ_FILES:-unset}"
+    echo "- TAHOE_READ_FILE_START: ${TAHOE_READ_FILE_START:-unset}"
     echo "- FOOTER_WORKERS: ${FOOTER_WORKERS:-unset}"
     echo "- READ_WORKERS: ${READ_WORKERS:-unset}"
     echo "- pip_install_exit_code: $pip_code"
@@ -132,6 +133,7 @@ if qc.exists():
         "index_only",
         "max_files",
         "max_read_files",
+        "read_file_start",
         "n_scanned_files",
         "n_row_groups_matched",
         "n_ambiguous_range_row_groups",
@@ -165,6 +167,7 @@ export RESULT_ROOT="${RESULT_ROOT:-$PROJECT_ROOT/results/pancancer_chk1i_sensiti
 export TAHOE_INDEX_ONLY="${TAHOE_INDEX_ONLY:-1}"
 export TAHOE_MAX_FILES="${TAHOE_MAX_FILES:-2}"
 export TAHOE_MAX_READ_FILES="${TAHOE_MAX_READ_FILES:-}"
+export TAHOE_READ_FILE_START="${TAHOE_READ_FILE_START:-0}"
 export FOOTER_WORKERS="${FOOTER_WORKERS:-2}"
 export READ_WORKERS="${READ_WORKERS:-1}"
 
@@ -177,6 +180,8 @@ MAX_READ_FILES_ARGS=()
 if [ -n "$TAHOE_MAX_READ_FILES" ]; then
   MAX_READ_FILES_ARGS=(--max-read-files "$TAHOE_MAX_READ_FILES")
 fi
+
+READ_FILE_START_ARGS=(--read-file-start "$TAHOE_READ_FILE_START")
 
 INDEX_ONLY_ARGS=()
 RUN_MODE="full-scoring"
@@ -206,10 +211,11 @@ log "python import exit code: $IMPORT_CODE"
 
 RUN_CODE=127
 if [ "$PIP_CODE" -eq 0 ] && [ "$IMPORT_CODE" -eq 0 ]; then
-  log "Running Tahoe $RUN_MODE diagnostic with max files: $TAHOE_MAX_FILES; max read files: ${TAHOE_MAX_READ_FILES:-none}."
+  log "Running Tahoe $RUN_MODE diagnostic with max files: $TAHOE_MAX_FILES; read start: $TAHOE_READ_FILE_START; max read files: ${TAHOE_MAX_READ_FILES:-none}."
   python "$RESULT_ROOT/tahoe_state_induction/scripts/run_tahoe_pseudobulk_chk1i_projection.py" \
     "${MAX_FILES_ARGS[@]}" \
     "${MAX_READ_FILES_ARGS[@]}" \
+    "${READ_FILE_START_ARGS[@]}" \
     --footer-workers "$FOOTER_WORKERS" \
     --read-workers "$READ_WORKERS" \
     "${INDEX_ONLY_ARGS[@]}" > "$RUN_LOG" 2>&1

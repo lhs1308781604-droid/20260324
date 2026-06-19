@@ -61,3 +61,10 @@ TAHOE_INDEX_ONLY=0 TAHOE_MAX_FILES=50 TAHOE_MAX_READ_FILES=5 FOOTER_WORKERS=16 R
 
 Full scoring uses temporary per-file downloads and deletes each parquet after
 row-group extraction. Keep `READ_WORKERS` low if root disk is limited.
+
+For chunked full scoring:
+
+```bash
+cd cloud_run_packages/tahoe_chk1i_codex_cloud_2026-06-18
+TAHOE_INDEX_ONLY=0 TAHOE_MAX_FILES=ALL TAHOE_READ_FILE_START=0 TAHOE_MAX_READ_FILES=250 FOOTER_WORKERS=16 READ_WORKERS=2 bash run_cloud_debug_index_only.sh
+```

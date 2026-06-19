@@ -445,17 +445,23 @@ def read_and_score_row_groups(
     workers: int,
     log_handle: Any | None,
     max_read_files: int | None = None,
+    read_file_start: int = 0,
 ) -> tuple[dict[tuple[Any, ...], dict[str, Any]], list[dict[str, Any]]]:
     matched = index[index["row_group_matched"]].copy()
     matched = matched.dropna(subset=["row_group"])
     if matched.empty:
         return {}, []
     matched["row_group"] = matched["row_group"].astype(int)
-    if max_read_files is not None:
-        selected_files = sorted(matched["file"].unique())[:max_read_files]
+    selected_files = sorted(matched["file"].unique())
+    total_matched_files = len(selected_files)
+    if read_file_start < 0:
+        raise RuntimeError("read_file_start must be non-negative.")
+    if read_file_start or max_read_files is not None:
+        stop = None if max_read_files is None else read_file_start + max_read_files
+        selected_files = selected_files[read_file_start:stop]
         matched = matched[matched["file"].isin(selected_files)].copy()
         log(
-            f"Applying max_read_files={max_read_files}; selected {matched['file'].nunique()} files and {len(matched)} exact row groups for scoring.",
+            f"Applying read file window start={read_file_start}, limit={max_read_files}; selected {matched['file'].nunique()}/{total_matched_files} files and {len(matched)} exact row groups for scoring.",
             log_handle,
         )
     file_groups = [
@@ -904,6 +910,7 @@ def save_outputs(
         "max_files": args.max_files,
         "index_only": args.index_only,
         "max_read_files": args.max_read_files,
+        "read_file_start": args.read_file_start,
         "footer_workers": args.footer_workers,
         "read_workers": args.read_workers,
         "n_candidate_parent_drugs": int(manifest["parent_drug"].nunique()),
@@ -933,6 +940,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--read-workers", type=int, default=6)
     parser.add_argument("--index-only", action="store_true", help="Scan and save row-group index without reading expression rows.")
     parser.add_argument("--max-read-files", type=int, default=None, help="Limit the number of exact-matched parquet files read for pilot scoring.")
+    parser.add_argument("--read-file-start", type=int, default=0, help="Start offset in the sorted exact-matched parquet file list for chunked scoring.")
     parser.add_argument("--reuse-index", action="store_true")
     parser.add_argument("--index-path", type=Path, default=TABLE_DIR / "tahoe_pseudobulk_candidate_rowgroup_index.tsv")
     args = parser.parse_args()
@@ -993,6 +1001,7 @@ def main() -> int:
             args.read_workers,
             log_handle,
             args.max_read_files,
+            args.read_file_start,
         )
         log(f"Accumulated condition score entries: {len(accs)}", log_handle)
         scores = finalize_condition_scores(accs, ruler, drug_meta, cell_meta)
