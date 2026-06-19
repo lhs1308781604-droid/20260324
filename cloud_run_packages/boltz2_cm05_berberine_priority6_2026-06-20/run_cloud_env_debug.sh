@@ -24,7 +24,9 @@ STATUS=cloud_results/cloud_env_debug_status.md
   echo '[try choose python]'
   PYTHON_BIN="${PYTHON_BIN:-}"
   if [ -z "$PYTHON_BIN" ]; then
-    if command -v python3.11 >/dev/null 2>&1; then
+    if command -v pyenv >/dev/null 2>&1 && [ -x "$(pyenv root)/versions/3.11.15/bin/python" ]; then
+      PYTHON_BIN="$(pyenv root)/versions/3.11.15/bin/python"
+    elif command -v python3.11 >/dev/null 2>&1 && python3.11 --version >/dev/null 2>&1; then
       PYTHON_BIN="$(command -v python3.11)"
     elif command -v pyenv >/dev/null 2>&1; then
       echo 'pyenv install -s 3.11.15 starting'
