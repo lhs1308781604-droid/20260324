@@ -31,3 +31,16 @@ Resource expectation:
 Claim boundary:
 - Positive projection means a drug-treated pseudobulk profile moves toward a CHK1i-sensitive-like transcriptional state.
 - This does not prove CHK1i synergy, rescue, combination efficacy, or causal mechanism.
+
+Diagnostic cloud entrypoint:
+
+```bash
+cd cloud_run_packages/tahoe_chk1i_codex_cloud_2026-06-18
+bash run_cloud_debug_index_only.sh
+```
+
+Use this first when Codex Cloud returns `no diff`. It runs a tiny index-only
+scan, captures environment, dependency, runtime, and output logs, writes
+`cloud_run_status.md`, creates `tahoe_chk1i_cloud_debug_outputs.tar.gz`, and
+exits 0 so Cloud can return a diagnostic diff even when the Tahoe run itself
+fails.
