@@ -51,3 +51,13 @@ For a full row-group index-only scan with the same diagnostic safeguards:
 cd cloud_run_packages/tahoe_chk1i_codex_cloud_2026-06-18
 TAHOE_MAX_FILES=ALL FOOTER_WORKERS=16 bash run_cloud_debug_index_only.sh
 ```
+
+For a bounded full-scoring smoke test:
+
+```bash
+cd cloud_run_packages/tahoe_chk1i_codex_cloud_2026-06-18
+TAHOE_INDEX_ONLY=0 TAHOE_MAX_FILES=50 TAHOE_MAX_READ_FILES=5 FOOTER_WORKERS=16 READ_WORKERS=1 bash run_cloud_debug_index_only.sh
+```
+
+Full scoring uses temporary per-file downloads and deletes each parquet after
+row-group extraction. Keep `READ_WORKERS` low if root disk is limited.

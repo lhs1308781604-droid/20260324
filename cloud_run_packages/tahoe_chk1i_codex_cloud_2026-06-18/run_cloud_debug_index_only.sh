@@ -15,7 +15,7 @@ RUN_STARTED_UTC="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 MAIN_LOG="$LOG_DIR/cloud_debug_main.log"
 ENV_LOG="$LOG_DIR/cloud_debug_environment.log"
 PIP_LOG="$LOG_DIR/pip_install.log"
-RUN_LOG="$LOG_DIR/tahoe_index_only_run.log"
+RUN_LOG="$LOG_DIR/tahoe_projection_run.log"
 SUMMARY_LOG="$LOG_DIR/output_summary.log"
 
 log() {
@@ -44,7 +44,7 @@ record_environment() {
     find "$ROOT_DIR" -maxdepth 3 -type f | sort
     echo
     echo "[selected env]"
-    env | sort | grep -E '^(HF_HOME|TMPDIR|PIP_CACHE_DIR|PROJECT_ROOT|RESULT_ROOT|PATH|PYTHONPATH)='
+    env | sort | grep -E '^(HF_HOME|TMPDIR|PIP_CACHE_DIR|PROJECT_ROOT|RESULT_ROOT|TAHOE_|FOOTER_WORKERS|READ_WORKERS|PATH|PYTHONPATH)='
   } > "$ENV_LOG" 2>&1
 }
 
@@ -81,9 +81,15 @@ write_status() {
     echo "- TMPDIR: ${TMPDIR:-unset}"
     echo "- PROJECT_ROOT: ${PROJECT_ROOT:-unset}"
     echo "- RESULT_ROOT: ${RESULT_ROOT:-unset}"
+    echo "- TAHOE_INDEX_ONLY: ${TAHOE_INDEX_ONLY:-unset}"
+    echo "- TAHOE_MAX_FILES: ${TAHOE_MAX_FILES:-unset}"
+    echo "- TAHOE_MAX_READ_FILES: ${TAHOE_MAX_READ_FILES:-unset}"
+    echo "- FOOTER_WORKERS: ${FOOTER_WORKERS:-unset}"
+    echo "- READ_WORKERS: ${READ_WORKERS:-unset}"
     echo "- pip_install_exit_code: $pip_code"
     echo "- python_import_exit_code: $import_code"
     echo "- tahoe_index_only_exit_code: $run_code"
+    echo "- tahoe_run_exit_code: $run_code"
     echo "- output_summary_exit_code: $summary_code"
     echo "- artifact_tar_exit_code: $tar_code"
     echo
@@ -125,6 +131,7 @@ if qc.exists():
     keys = [
         "index_only",
         "max_files",
+        "max_read_files",
         "n_scanned_files",
         "n_row_groups_matched",
         "n_ambiguous_range_row_groups",
@@ -155,15 +162,30 @@ PY
 choose_scratch
 export PROJECT_ROOT="${PROJECT_ROOT:-$ROOT_DIR}"
 export RESULT_ROOT="${RESULT_ROOT:-$PROJECT_ROOT/results/pancancer_chk1i_sensitizer_2026-06-17}"
+export TAHOE_INDEX_ONLY="${TAHOE_INDEX_ONLY:-1}"
 export TAHOE_MAX_FILES="${TAHOE_MAX_FILES:-2}"
+export TAHOE_MAX_READ_FILES="${TAHOE_MAX_READ_FILES:-}"
 export FOOTER_WORKERS="${FOOTER_WORKERS:-2}"
+export READ_WORKERS="${READ_WORKERS:-1}"
 
 MAX_FILES_ARGS=()
 if [ "$TAHOE_MAX_FILES" != "ALL" ] && [ -n "$TAHOE_MAX_FILES" ]; then
   MAX_FILES_ARGS=(--max-files "$TAHOE_MAX_FILES")
 fi
 
-log "Starting cloud diagnostic index-only run."
+MAX_READ_FILES_ARGS=()
+if [ -n "$TAHOE_MAX_READ_FILES" ]; then
+  MAX_READ_FILES_ARGS=(--max-read-files "$TAHOE_MAX_READ_FILES")
+fi
+
+INDEX_ONLY_ARGS=()
+RUN_MODE="full-scoring"
+if [ "$TAHOE_INDEX_ONLY" != "0" ]; then
+  INDEX_ONLY_ARGS=(--index-only)
+  RUN_MODE="index-only"
+fi
+
+log "Starting cloud diagnostic $RUN_MODE run."
 record_environment
 
 log "Installing Python requirements."
@@ -184,14 +206,15 @@ log "python import exit code: $IMPORT_CODE"
 
 RUN_CODE=127
 if [ "$PIP_CODE" -eq 0 ] && [ "$IMPORT_CODE" -eq 0 ]; then
-  log "Running Tahoe index-only diagnostic with max files: $TAHOE_MAX_FILES."
+  log "Running Tahoe $RUN_MODE diagnostic with max files: $TAHOE_MAX_FILES; max read files: ${TAHOE_MAX_READ_FILES:-none}."
   python "$RESULT_ROOT/tahoe_state_induction/scripts/run_tahoe_pseudobulk_chk1i_projection.py" \
     "${MAX_FILES_ARGS[@]}" \
+    "${MAX_READ_FILES_ARGS[@]}" \
     --footer-workers "$FOOTER_WORKERS" \
-    --read-workers 1 \
-    --index-only > "$RUN_LOG" 2>&1
+    --read-workers "$READ_WORKERS" \
+    "${INDEX_ONLY_ARGS[@]}" > "$RUN_LOG" 2>&1
   RUN_CODE=$?
-  log "Tahoe index-only exit code: $RUN_CODE"
+  log "Tahoe $RUN_MODE exit code: $RUN_CODE"
 else
   log "Skipping Tahoe run because dependency setup failed."
 fi

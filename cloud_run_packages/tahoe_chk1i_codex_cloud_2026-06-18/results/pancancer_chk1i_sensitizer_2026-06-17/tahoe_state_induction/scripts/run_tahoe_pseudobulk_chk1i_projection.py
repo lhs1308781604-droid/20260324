@@ -15,6 +15,7 @@ import json
 import math
 import os
 import sys
+import tempfile
 import time
 import traceback
 from dataclasses import dataclass
@@ -415,12 +416,18 @@ def read_one_file_row_groups(
     columns: list[str],
     max_retries: int = 2,
 ) -> pd.DataFrame:
+    tmp_parent = Path(os.environ.get("TMPDIR") or tempfile.gettempdir())
+    try:
+        tmp_parent.mkdir(parents=True, exist_ok=True)
+    except Exception:  # noqa: BLE001
+        tmp_parent = Path(tempfile.gettempdir())
     for attempt in range(max_retries + 1):
         try:
-            local_path = hf_hub_download(DATASET_ID, repo_path, repo_type="dataset")
-            pf = pq.ParquetFile(local_path)
-            table = pf.read_row_groups(row_groups, columns=columns, use_threads=True)
-            return table.to_pandas()
+            with tempfile.TemporaryDirectory(prefix="tahoe_rg_", dir=tmp_parent) as tmpdir:
+                local_path = hf_hub_download(DATASET_ID, repo_path, repo_type="dataset", local_dir=tmpdir)
+                pf = pq.ParquetFile(local_path)
+                table = pf.read_row_groups(row_groups, columns=columns, use_threads=True)
+                return table.to_pandas()
         except Exception:  # noqa: BLE001
             if attempt < max_retries:
                 time.sleep(2 + attempt)
