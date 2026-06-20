@@ -174,9 +174,24 @@ def run_one(row: dict[str, str], mode: str, env: dict[str, str]) -> dict[str, st
     template_log = LOG_DIR / f"{prio}_{gene}_template.log"
     fallback_log = LOG_DIR / f"{prio}_{gene}_fallback.log"
 
-    log(f"running {gene} template")
-    template_cmd = ["boltz", "predict", str(template_yaml), "--out_dir", str(OUTPUT_TEMPLATE), "--cache", env["BOLTZ_CACHE_DIR"], *PARAMS]
-    template_code = run_capture(template_cmd, template_log, env=env)
+    force_no_template = os.environ.get("BOLTZ_FORCE_NO_TEMPLATE", "0") == "1"
+    if force_no_template:
+        log(f"running {gene} no-template route directly")
+        template_code = None
+        template_has_outputs = False
+        template_status = "skipped_force_no_template"
+    else:
+        log(f"running {gene} template")
+        template_cmd = ["boltz", "predict", str(template_yaml), "--out_dir", str(OUTPUT_TEMPLATE), "--cache", env["BOLTZ_CACHE_DIR"], *PARAMS]
+        template_code = run_capture(template_cmd, template_log, env=env)
+        t_cif, t_conf_file, t_aff_file, _t_conf, _t_aff = locate_prediction(OUTPUT_TEMPLATE, template_stem)
+        template_has_outputs = bool(t_cif and t_conf_file and t_aff_file)
+        if template_code == 0 and template_has_outputs:
+            template_status = "success"
+        elif template_code == 0 and not template_has_outputs:
+            template_status = "missing_outputs"
+        else:
+            template_status = f"failed:{template_code}"
     route = "template"
     final_log = template_log
     final_out = OUTPUT_TEMPLATE
@@ -184,27 +199,36 @@ def run_one(row: dict[str, str], mode: str, env: dict[str, str]) -> dict[str, st
     fallback_status = "not_run"
 
     allow_fallback = os.environ.get("BOLTZ_ALLOW_FALLBACK", "1") != "0"
-    if template_code != 0 and allow_fallback:
-        log(f"{gene} template failed with {template_code}; trying no-template fallback")
+    if allow_fallback and (force_no_template or template_code != 0 or not template_has_outputs):
+        log(f"{gene} template route status {template_status}; trying no-template fallback")
         fallback_cmd = ["boltz", "predict", str(fallback_yaml), "--out_dir", str(OUTPUT_FALLBACK), "--cache", env["BOLTZ_CACHE_DIR"], *PARAMS]
         fallback_code = run_capture(fallback_cmd, fallback_log, env=env)
         route = "no_template_fallback"
         final_log = fallback_log
         final_out = OUTPUT_FALLBACK
         final_stem = fallback_stem
-        fallback_status = "success" if fallback_code == 0 else f"failed:{fallback_code}"
+        f_cif, f_conf_file, f_aff_file, _f_conf, _f_aff = locate_prediction(final_out, final_stem)
+        fallback_has_outputs = bool(f_cif and f_conf_file and f_aff_file)
+        if fallback_code == 0 and fallback_has_outputs:
+            fallback_status = "success"
+        elif fallback_code == 0 and not fallback_has_outputs:
+            fallback_status = "missing_outputs"
+        else:
+            fallback_status = f"failed:{fallback_code}"
     else:
         fallback_code = None
 
     cif, conf_file, aff_file, conf, aff = locate_prediction(final_out, final_stem)
     final_status = "success" if cif and conf_file and aff_file else "missing_outputs"
-    if template_code != 0 and fallback_code != 0:
+    if route == "template" and template_code not in (None, 0):
+        final_status = "failed"
+    if route == "no_template_fallback" and fallback_code not in (None, 0):
         final_status = "failed"
     return {
         "priority_order": prio,
         "gene_symbol": gene,
         "mode_requested": mode,
-        "template_status": "success" if template_code == 0 else f"failed:{template_code}",
+        "template_status": template_status,
         "fallback_status": fallback_status,
         "final_status": final_status,
         "route_used": route,

@@ -48,7 +48,8 @@ mkdir -p cloud_results/logs cloud_results/status cloud_results/tables cloud_resu
   export BOLTZ_DEVICES=1
   export BOLTZ_USE_MSA_SERVER=0
   export BOLTZ_USE_POTENTIALS=0
-  export BOLTZ_ALLOW_FALLBACK=0
+  export BOLTZ_FORCE_NO_TEMPLATE=1
+  export BOLTZ_ALLOW_FALLBACK=1
   export BOLTZ_RECYCLING_STEPS=1
   export BOLTZ_SAMPLING_STEPS=5
   export BOLTZ_SAMPLING_STEPS_AFFINITY=5
@@ -56,7 +57,7 @@ mkdir -p cloud_results/logs cloud_results/status cloud_results/tables cloud_resu
   export BOLTZ_DIFFUSION_SAMPLES_AFFINITY=1
   export BOLTZ_SEED=20260620
 
-  echo "fast_smoke_params: cpu no_msa no_potentials no_fallback recycling=1 sampling=5 affinity_sampling=5"
+  echo "fast_smoke_params: cpu no_template no_msa no_potentials recycling=1 sampling=5 affinity_sampling=5"
   boltz_timeout="${BOLTZ_FAST_SMOKE_TIMEOUT_SECONDS:-600}"
   echo "boltz_fast_smoke_timeout_seconds: $boltz_timeout"
   timeout "$boltz_timeout" python scripts/run_boltz2_cloud.py
