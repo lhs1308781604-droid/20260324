@@ -7,7 +7,7 @@ sequences:
     id: L
     smiles: COC1=C(C2=C[N+]3=C(C=C2C=C1)C4=CC5=C(C=C4CC3)OCO5)OC
 templates:
-- pdb: inputs/templates/FLVCR1_receptor.pdb
+- pdb: inputs/templates/FLVCR1_receptor_clean_altlocA.pdb
   chain_id: A
   template_id: A
   force: false
