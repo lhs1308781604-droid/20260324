@@ -34,7 +34,6 @@ PARAMS = [
     "--model", "boltz2",
     "--accelerator", os.environ.get("BOLTZ_ACCELERATOR", "gpu"),
     "--devices", os.environ.get("BOLTZ_DEVICES", "1"),
-    "--use_msa_server",
     "--recycling_steps", os.environ.get("BOLTZ_RECYCLING_STEPS", "3"),
     "--sampling_steps", os.environ.get("BOLTZ_SAMPLING_STEPS", "200"),
     "--diffusion_samples", os.environ.get("BOLTZ_DIFFUSION_SAMPLES", "1"),
@@ -43,6 +42,8 @@ PARAMS = [
     "--override",
     "--seed", os.environ.get("BOLTZ_SEED", "20260620"),
 ]
+if os.environ.get("BOLTZ_USE_MSA_SERVER", "1") != "0":
+    PARAMS.append("--use_msa_server")
 if os.environ.get("BOLTZ_USE_POTENTIALS", "1") != "0":
     PARAMS.append("--use_potentials")
 
@@ -182,7 +183,8 @@ def run_one(row: dict[str, str], mode: str, env: dict[str, str]) -> dict[str, st
     final_stem = template_stem
     fallback_status = "not_run"
 
-    if template_code != 0:
+    allow_fallback = os.environ.get("BOLTZ_ALLOW_FALLBACK", "1") != "0"
+    if template_code != 0 and allow_fallback:
         log(f"{gene} template failed with {template_code}; trying no-template fallback")
         fallback_cmd = ["boltz", "predict", str(fallback_yaml), "--out_dir", str(OUTPUT_FALLBACK), "--cache", env["BOLTZ_CACHE_DIR"], *PARAMS]
         fallback_code = run_capture(fallback_cmd, fallback_log, env=env)
